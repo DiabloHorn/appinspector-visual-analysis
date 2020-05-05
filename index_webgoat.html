@@ -49,7 +49,7 @@ var grid = [width,height];
 //        .range(["#2980B9", "#E67E22", "#27AE60", "#27AE60"]);
 var colorscale = d3.scale.linear().range(['beige', 'steelblue']);
 
-d3.json("example-data/dva_dupes_phponly.json", function(error, data) {
+d3.json("example-data/webgoat_dupes_javaonly.json", function(error, data) {
   if (error) return console.warn(error); 
 
   data = data["metaData"]["detailedMatchList"]
