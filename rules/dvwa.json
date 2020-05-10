@@ -1,0 +1,130 @@
+[
+  {
+    "name": "Functions: Web upload functions",
+    "id": "DH000001",
+    "description": "Function: Web upload functions",
+    "applies_to": [
+      "php"
+    ],
+    "tags": [
+      "Functions.upload"
+    ],
+    "severity": "important",
+    "patterns": [
+      {
+        "pattern": "$_FILES",
+        "type": "string",
+        "scopes": [
+          "code"
+        ],
+        "confidence": "high"
+      },
+      {
+        "pattern": "move_uploaded_file",
+        "type": "string",
+        "scopes":[
+          "code"
+        ],
+        "confidence": "high"
+      }
+    ]
+  },
+  {
+    "name": "Functions: Execute",
+    "id": "DH000002",
+    "description": "Function: Execute",
+    "applies_to": [
+      "php"
+    ],
+    "tags": [
+      "Functions.execute"
+    ],
+    "severity": "critical",
+    "patterns": [
+      {
+        "pattern": "shell_exec",
+        "type": "string",
+        "scopes": [
+          "code"
+        ],
+        "confidence": "high"
+      },
+      {
+        "pattern": "exec",
+        "type": "string",
+        "scopes": [
+          "code"
+        ],
+        "confidence": "high"
+      },
+      {
+        "pattern": "system.*\\);",
+        "type": "regex",
+        "scopes": [
+          "code"
+        ],
+        "confidence": "low"
+      },
+      {
+        "pattern": "passthru",
+        "type": "string",
+        "scopes": [
+          "code"
+        ],
+        "confidence": "high"
+      },
+      {
+        "pattern": "proc_open",
+        "type": "string",
+        "scopes": [
+          "code"
+        ],
+        "confidence": "high"
+      }
+    ]
+  },
+  {
+    "name": "Config known weak",
+    "id": "DH000003",
+    "description": "Database root password",
+    "applies_to": [
+      "php"
+    ],
+    "tags": [
+      "Config.knownweak"
+    ],
+    "severity": "important",
+    "patterns": [
+      {
+        "pattern": "db_user.*root",
+        "type": "regex",
+        "scopes": [
+          "all"
+        ],
+        "confidence": "high"        
+      }
+    ]
+  },
+  {
+    "name": "Manual mandatory",
+    "id": "DH000004",
+    "description": "Manual review mandatory",
+    "applies_to": [
+      "php"
+    ],
+    "tags": [
+      "Manual.mandatory"
+    ],
+    "severity": "critical",
+    "patterns": [
+      {
+        "pattern": "HIT_ME_RISK_MANUAL_MANDATED",
+        "type": "string",
+        "scopes": [
+          "all"
+        ],
+        "confidence": "high"        
+      }
+    ]
+  } 
+]
