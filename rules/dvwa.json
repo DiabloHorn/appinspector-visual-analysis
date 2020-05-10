@@ -12,16 +12,16 @@
     "severity": "important",
     "patterns": [
       {
-        "pattern": "$_FILES",
-        "type": "string",
+        "pattern": "\\$_FILES",
+        "type": "regex",
         "scopes": [
           "code"
         ],
         "confidence": "high"
       },
       {
-        "pattern": "move_uploaded_file",
-        "type": "string",
+        "pattern": "move_uploaded_file[ ]*\\(",
+        "type": "regex",
         "scopes":[
           "code"
         ],
@@ -42,23 +42,23 @@
     "severity": "critical",
     "patterns": [
       {
-        "pattern": "shell_exec",
-        "type": "string",
+        "pattern": " shell_exec[ ]*\\(",
+        "type": "regex",
         "scopes": [
           "code"
         ],
         "confidence": "high"
       },
       {
-        "pattern": "exec",
-        "type": "string",
+        "pattern": " exec[ ]*\\(",
+        "type": "regex",
         "scopes": [
           "code"
         ],
         "confidence": "high"
       },
       {
-        "pattern": "system.*\\);",
+        "pattern": " system[ ]*\\(",
         "type": "regex",
         "scopes": [
           "code"
@@ -66,16 +66,16 @@
         "confidence": "low"
       },
       {
-        "pattern": "passthru",
-        "type": "string",
+        "pattern": " passthru[ ]*\\(",
+        "type": "regex",
         "scopes": [
           "code"
         ],
         "confidence": "high"
       },
       {
-        "pattern": "proc_open",
-        "type": "string",
+        "pattern": " proc_open[ ]*\\(",
+        "type": "regex",
         "scopes": [
           "code"
         ],
