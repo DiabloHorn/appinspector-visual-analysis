@@ -2,6 +2,7 @@
 <meta charset="utf-8">
 
 <head>
+  <!--Original Author: Anne Postma-->
 	<style>
 
   #viz {
@@ -49,7 +50,7 @@ var grid = [width,height];
 //        .range(["#2980B9", "#E67E22", "#27AE60", "#27AE60"]);
 var colorscale = d3.scale.linear().range(['beige', 'steelblue']);
 
-d3.json("dvwa_dupes_no-external.json", function(error, data) {
+d3.json("xxx.json", function(error, data) {
   if (error) return console.warn(error); 
 
   data = data["metaData"]["detailedMatchList"]
@@ -111,12 +112,14 @@ d3.json("dvwa_dupes_no-external.json", function(error, data) {
       .attr("stroke-width", 0)
       .attr("stroke", "black")
       .on("mouseover", function(d){
+        d3.select("#menu").style("visibility","hidden");
         return tooltip.style("visibility", "visible")
                       .html(d.id + "<br>Count:" + d.count + "<br>Rules" + JSON.stringify(d.rules));})
       .on("mousemove", function(){
         return tooltip.style("top",(d3.event.pageY-10)+"px")
                       .style("left",(d3.event.pageX+10)+"px");})
       .on("mouseout", function(){
+        d3.select("#menu").style("visibility","visible");
         return tooltip.style("visibility", "hidden");});;
 
   // var text = d3.select("#menu").append("div")
@@ -196,8 +199,8 @@ d3.json("dvwa_dupes_no-external.json", function(error, data) {
       return d.name;
     })
     .text(function(d) { return d.value; });
-
-  rows.on("mouseover",function(chosen) {
+    
+  rows.on("click",function(chosen) {
       // reset all rects:
       d3.selectAll("rect").attr("stroke-width", 0);  
       // select all rects and filter if groups array has chosen value:
@@ -205,11 +208,11 @@ d3.json("dvwa_dupes_no-external.json", function(error, data) {
         return d.rules[chosen.id] 
       })
       .attr("stroke-width", 2)
-    })
-    .on("mouseout",function(chosen) {
-      // reset all rects:
-      d3.selectAll("rect").attr("stroke-width", 0);  
     });
+    //.on("mouseout",function(chosen) {
+      // reset all rects:
+      //d3.selectAll("rect").attr("stroke-width", 0);  
+    //});
 
 });
 

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+	<style>
+
+  #viz {
+    width: 650px;
+    float:left;
+  }
+  #menu {
+    float:left;
+  }
+
+	</style>
+</head>
+
+<body>
+
+  <div id="viz"><h2>Filemap</h2></div>
+  <div id="menu"><h2>Riskmap</h2></div>
+	
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+
+<script>
+
+var margin = {top: 25, right: 25, bottom: 25, left: 25},
+    width = 600 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
+
+var svg = d3.select("#viz").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", 
+          "translate(" + margin.left + "," + margin.top + ")");
+
+var tooltip = d3.select("body")
+  .append("div")
+  .style("position", "absolute")
+  .style("z-index", "10")
+  .style("width", "300px")
+  .style("visibility", "hidden")
+  .html("a simple tooltip");
+
+//decide on gridsize in pixels
+var grid = [width,height];
+//var colorScale = d3.scale.threshold()
+//        .range(["#2980B9", "#E67E22", "#27AE60", "#27AE60"]);
+var colorscale = d3.scale.linear().range(['beige', 'steelblue']);
+
+d3.json("example-data/webgoat_dupes_javaonly.json", function(error, data) {
+  if (error) return console.warn(error); 
+
+  data = data["metaData"]["detailedMatchList"]
+
+  var data_perfile = {};
+  var rules = {};
+  var rules_counts = {};
+
+  for (var i = 0; i < data.length; i++) {
+    var file = data[i]["fileName"];
+    var rule = data[i]["ruleName"] + "|" + data[i]["confidence"]  + "|" + data[i]["severity"];
+    data_perfile[file] = data_perfile[file] ? data_perfile[file] + 1 : 1;
+    rules[file] = rules[file] ? rules[file] : {};
+    rules[file][rule] = rules[file][rule] ? rules[file][rule] + 1 : 1;
+    rules_counts[rule] = rules_counts[rule] ? rules_counts[rule] + 1 : 1;
+  }
+
+  var data_array = [];
+  for(var key in data_perfile) {
+    var entry = {};
+    entry.id = key;
+    entry.count = data_perfile[key];
+    entry.rules = rules[key];
+    data_array.push(entry);
+  }
+
+  var rules_array = [];
+  for(var key in rules_counts) {
+    var entry = {};
+    entry.id = key;
+    entry.count = rules_counts[key]
+    entry.name = key.split('|')[0]
+    entry.confidence = key.split('|')[1];
+    entry.severity = key.split('|')[2]
+    rules_array.push(entry)
+  }
+
+  console.log(data_array)
+  console.log(rules)
+  console.log(rules_counts)
+  console.log(rules_array)
+
+  total_blocks = Object.keys(data_perfile).length;
+  var columns = (Math.sqrt(total_blocks) % 1) > 0.5 ? Math.ceil(Math.sqrt(total_blocks)) : Math.floor(Math.sqrt(total_blocks)),
+      rows = Math.ceil(Math.sqrt(total_blocks));
+  var block_width = grid[0] / columns,
+      block_height = grid[1] / rows;
+
+  colorscale.domain([0, d3.max(data_array, function(d) { return d.count; })])
+
+  svg.selectAll("rect")
+    .data(data_array)
+    .enter().append("rect")
+      .attr("width", block_width)
+      .attr("height", block_height)
+      .attr('y', function(d, i) { return Math.floor(i / columns) * block_height; })
+      .attr('x', function(d, i) { return i % columns > 0 ? i % columns * block_width : 0; })
+      .attr('fill', function(d) { return colorscale(d.count); })
+      .attr("stroke-width", 0)
+      .attr("stroke", "black")
+      .on("mouseover", function(d){
+        return tooltip.style("visibility", "visible")
+                      .html(d.id + "<br>Count:" + d.count + "<br>Rules" + JSON.stringify(d.rules));})
+      .on("mousemove", function(){
+        return tooltip.style("top",(d3.event.pageY-10)+"px")
+                      .style("left",(d3.event.pageX+10)+"px");})
+      .on("mouseout", function(){
+        return tooltip.style("visibility", "hidden");});;
+
+  // var text = d3.select("#menu").append("div")
+  //   .selectAll("p")
+  //   .data(rules_array)
+  //   .enter().append("p")
+  //   .html(function(d) { return "Category: " + d.id + " Count: " + d.count })
+  //   .on("mouseover",function(chosen) {
+  //     // reset all circles:
+  //     d3.selectAll("rect").attr("stroke-width", 0);  
+  //     // select all circles and filter if groups array has chosen value:
+  //     d3.selectAll("rect").filter(function(d) { 
+  //       return d.rules[chosen.id] 
+  //     })
+  //     .attr("stroke-width", 2)
+  //   })
+
+  var sortAscending = true;
+  var table = d3.select('#menu').append('table');
+  var titles = ["name", "confidence", "severity", "count"]
+  var headers = table.append('thead').append('tr')
+    .selectAll('th')
+    .data(titles).enter()
+    .append('th')
+    .text(function(d) {
+      return d
+    })
+    .on('click', function(d) {
+      headers.attr('class', 'header');
+      if (d == "name" || d == "confidence" || d == "severity") { //these keys sort alphabetically
+        // sorting alphabetically");
+        if (sortAscending) {
+          rows.sort(function(a, b) {
+            return d3.ascending(a[d], b[d]);
+          });
+          sortAscending = false;
+          this.className = 'aes';
+        } else {
+          rows.sort(function(a, b) {
+            return d3.descending(a[d], b[d]);
+          });
+          sortAscending = true;
+          this.className = 'des';
+        }
+      } else {
+        if (sortAscending) {
+          //all other keys sort numerically including time
+          rows.sort(function(a, b) {
+            return b[d] - a[d];
+          });
+          sortAscending = false;
+          this.className = 'aes';
+        } else {
+          rows.sort(function(a, b) {
+            return a[d] - b[d];
+          });
+          sortAscending = true;
+          this.className = 'des';
+        }
+      }
+    });
+
+  var rows = table.append('tbody').selectAll('tr')
+    .data(rules_array).enter()
+    .append('tr');
+  rows.selectAll('td')
+    .data(function(d) {
+      return titles.map(function(key, i) {
+        return {
+          'value': d[key],
+          'name': d
+        };
+      });
+    }).enter()
+    .append('td')
+    .attr('data-th', function(d) {
+      return d.name;
+    })
+    .text(function(d) { return d.value; });
+
+  rows.on("mouseover",function(chosen) {
+      // reset all rects:
+      d3.selectAll("rect").attr("stroke-width", 0);  
+      // select all rects and filter if groups array has chosen value:
+      d3.selectAll("rect").filter(function(d) { 
+        return d.rules[chosen.id] 
+      })
+      .attr("stroke-width", 2)
+    })
+    .on("mouseout",function(chosen) {
+      // reset all rects:
+      d3.selectAll("rect").attr("stroke-width", 0);  
+    });
+
+});
+
+
+</script>
+
+</body>
